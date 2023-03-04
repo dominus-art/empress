@@ -2,13 +2,13 @@ from typing import Dict, List, Optional
 
 from discord.ext.commands import Context, Cog, Bot, Greedy
 from discord.ext import commands as cmd
-from discord import TextChannel, Embed, EmbedField, Colour, ApplicationContext
+from discord import TextChannel, Embed, EmbedField, Colour, ApplicationContext, Webhook
 
 
 class Webhooks(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot: Bot = bot
-        self.webhooks: Dict[str, TextChannel] = {}
+        self.webhooks: Dict[str, Webhook] = {}
         self.webhooks_channel_names: List[str] = []
 
     def _embed_channel_names(self) -> List[EmbedField]:
@@ -25,6 +25,13 @@ class Webhooks(Cog):
     @cmd.has_any_role("Admin", "Technician", "Staff")
     async def webhooks(self, ctx: Context):
         pass
+
+    @webhooks.commands(name="sync")
+    @cmd.has_any_role("Admin", "Technician", "Staff")
+    async def sync(self, ctx: Context):
+        webhooks: List[Webhook] = await ctx.guild.webhooks()
+        self.webhooks = {webhook.channel_id: webhook for webhook in webhooks}
+        await ctx.reply(self._embed_channel_names())
 
     @webhooks.command(name="addchannels")
     @cmd.has_any_role("Admin", "Technician", "Staff")
