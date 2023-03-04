@@ -26,7 +26,7 @@ class Webhooks(Cog):
     async def webhooks(self, ctx: Context):
         pass
 
-    @webhooks.commands(name="sync")
+    @webhooks.command(name="sync")
     @cmd.has_any_role("Admin", "Technician", "Staff")
     async def sync(self, ctx: Context):
         webhooks: List[Webhook] = await ctx.guild.webhooks()
