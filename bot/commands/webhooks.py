@@ -31,7 +31,7 @@ class Webhooks(Cog):
     async def sync(self, ctx: Context):
         webhooks: List[Webhook] = await ctx.guild.webhooks()
         self.webhooks = {webhook.channel_id: webhook for webhook in webhooks}
-        await ctx.reply(self._embed_channel_names())
+        await ctx.reply(embed=self._embed_channel_names())
 
     @webhooks.command(name="addchannels")
     @cmd.has_any_role("Admin", "Technician", "Staff")
