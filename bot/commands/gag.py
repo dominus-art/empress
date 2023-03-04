@@ -24,6 +24,7 @@ class Gag(Cog):
             return
         if "Submissive" not in user.roles or "Switch" not in user.roles or ctx.author == user:
             await ctx.send(f'Cannot gag {user.display_name}.', delete_after=3)
+            return
         try:
             await user.add_roles(self.gag_role)
             await ctx.send(f"Gagged {user.display_name}", delete_after=2)
