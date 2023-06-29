@@ -17,13 +17,13 @@ async_session = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=
 
 Base = declarative_base()
 
-
+@asynccontextmanager
 async def get_session():
-    async with async_session() as sess:
-        async with sess.begin():
-            try:
-                yield sess
-            except:
-                await sess.rollback()
-            finally:
-                await sess.close()
+    try:
+        async with async_session() as session:
+            yield session
+    except:
+        await session.rollback()
+        raise
+    finally:
+        await session.close()

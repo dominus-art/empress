@@ -33,25 +33,24 @@ class Tandd(Cog):
         if not ctx.invoked_subcommand:
             return
 
-    @truth.command(name="PG")
+    @truth.command(name="PG", aliases=["pg", "sfw", "SFW"])
     async def PG_t(self, ctx: Context):
-        db: AsyncSession = await anext(get_session())
-        question = await get_random_pg_question(db)
-        embed = tandd_embed(ctx).add_field(name=question, value="")
+        question = await get_random_pg_question()
+        embed = tandd_embed(ctx).add_field(name=question.question, value="")
+        embed.set_footer(text="TRUTH | Rating: PG")
         await ctx.reply(embed=embed)
 
-    @truth.command(name="R")
+    @truth.command(name="R", aliases=["r", "nsfw", "NSFW"])
     async def R_t(self, ctx: Context):
-        db: AsyncSession = await anext(get_session())
-        question = await get_random_r_question(db)
-        embed = tandd_embed(ctx).add_field(name=question, value="")
+        question = await get_random_r_question()
+        embed = tandd_embed(ctx).add_field(name=question.question, value="")
+        embed.set_footer(text="TRUTH | Rating: R")
         await ctx.reply(embed=embed)
 
     @truth.command(name="create")
     @is_trusted_member()
     async def create_t(self, ctx: Context, rating: str, *, content: str):
-        db = await anext(get_session())
-        new_truth = await create_truth(db, RATE_MAPPING_IN[rating.upper()], content)
+        new_truth = await create_truth(RATE_MAPPING_IN[rating.upper()], content)
         embed = tandd_embed(ctx)
         embed.title = "New dare created."
         embed.timestamp = datetime.now()
@@ -64,28 +63,26 @@ class Tandd(Cog):
         if not ctx.invoked_subcommand:
             return
 
-    @dare.command(name="PG")
+    @dare.command(name="PG", aliases=["pg", "sfw", "SFW"])
     async def PG_d(self, ctx: Context):
-        db: AsyncSession = await anext(get_session())
-        dare = await get_random_pg_dare(db)
+        dare = await get_random_pg_dare()
         embed = tandd_embed(ctx)
-        embed.add_field(name=dare, value="")
+        embed.add_field(name=dare.dare, value="")
+        embed.set_footer(text="DARE | Rating: PG")
         await ctx.reply(embed=embed)
 
-    @dare.command(name="R")
+    @dare.command(name="R", aliases=["r", "nsfw", "NSFW"])
     async def R_d(self, ctx: Context):
-        db: AsyncSession = await anext(get_session())
-        dare = await get_random_r_dare(db)
+        dare = await get_random_r_dare()
         embed = tandd_embed(ctx)
-        embed.add_field(name=dare, value="")
-        embed.set_footer(f"DARE | Rating: R")
+        embed.add_field(name=dare.dare, value="")
+        embed.set_footer(text=f"DARE | Rating: R")
         await ctx.reply(embed=embed)
 
     @dare.command(name="create")
     @is_trusted_member()
     async def create_d(self, ctx: Context, rating: str, *, content: str):
-        db: AsyncSession = await anext(get_session())
-        new_dare = await create_dare(db, RATE_MAPPING_IN[rating.upper()], content)
+        new_dare = await create_dare(RATE_MAPPING_IN[rating.upper()], content)
         embed = tandd_embed(ctx)
         embed.title = "New dare created."
         embed.timestamp = datetime.now()

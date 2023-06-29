@@ -60,16 +60,14 @@ class Badwords(Cog):
             await ctx.reply("Cannot apply rules to a Domme.")
             return
 
-        db: AsyncSession = await anext(get_session())
         embed.description = f"{user.mention} new speech rules."
-        db_user: DbUser = await db.get(DbUser, user.id)
+        db_user = await crud.user.get_user(user.id)
         if not db_user:
-            db_user = await crud.user.create_user(db, user.id)
+            db_user = await crud.user.create_user(user.id)
 
         words_to_add = [word.strip().replace(",", "") for word in words.split()]
-        await crud.badwords.add_badwords(db, user.id, words_to_add)
-        await crud.badwords.set_lives(db, user.id, lives)
-        await db.refresh(db_user)
+        await crud.badwords.add_badwords(user.id, words_to_add)
+        await crud.badwords.set_lives(user.id, lives)
 
         await user.add_roles(self.badword_role)
         embed.add_field(
@@ -87,10 +85,9 @@ class Badwords(Cog):
             await ctx.reply(embed=embed)
             return
 
-        db: AsyncSession = await anext(get_session())
         words_to_remove = set([word.strip().strip(",") for word in words.split()])
         db_user, action_result = await crud.badwords.remove_badwords(
-            db, user.id, words_to_remove
+            user.id, words_to_remove
         )
         if isinstance(action_result, str):
             embed.description = f"{user.mention} {action_result}"
@@ -110,8 +107,8 @@ class Badwords(Cog):
             embed.description = f"{user.display_name} has no badwords to clear."
             await ctx.reply(embed=embed)
             return
-        db: AsyncSession = await anext(get_session())
-        await crud.badwords.clear_badwords(db, user.id)
+
+        await crud.badwords.clear_badwords(user.id)
         await user.remove_roles(self.badword_role)
         embed.description = f"{user.display_name} cleared."
         await ctx.send(embed=embed)
@@ -125,8 +122,7 @@ class Badwords(Cog):
             embed.description = f"{user.display_name} has no badwords."
             await ctx.send(embed=embed)
             return
-        db: AsyncSession = await anext(get_session())
-        db_user: DbUser = await db.get(DbUser, user.id)
+        db_user = await crud.user.get_user(user.id)
         embed.description = f"{user.display_name}"
         embed.add_field(
             name="Forbidden Words:", value=", ".join(json.loads(db_user.bad_words))
@@ -139,8 +135,7 @@ class Badwords(Cog):
             return
         if self.badword_role not in message.author.roles:
             return
-        db: AsyncSession = await anext(get_session())
-        user: DbUser = await db.get(DbUser, message.author.id)
+        user = await crud.user.get_user(message.author.id)
         user_badwords = set(json.loads(user.bad_words))
         lives = user.lives
         if user_badwords.isdisjoint(
@@ -154,15 +149,12 @@ class Badwords(Cog):
                 description=f"{message.author.mention} run out of lives and is now gagged.",
                 timestamp=datetime.now(),
             ).set_footer(text=f"Gag Type: {gag_role.name}")
-            user.bad_words = json.dumps([])
-            await db.commit()
+            await crud.badwords.clear_badwords(message.author.id)
             await message.author.add_roles(gag_role)
             await message.author.remove_roles(self.badword_role)
             await message.channel.send(embed=embed)
             return
-        user.lives = lives
-        await db.commit()
-        await db.refresh(user)
+        user = await crud.badwords.set_lives(message.author.id, lives)
         embed = Embed(
             description=f"{message.author.mention} said a frobidden word!\nTheir live count: {user.lives}",
             timestamp=datetime.now(),

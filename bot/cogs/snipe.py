@@ -25,7 +25,7 @@ class Snipe(Cog):
         embed = Embed()
         embed.add_field(name="", value=cached_msg["content"])
         embed.timestamp = cached_msg["date"]
-        embed.set_author(name=cached_msg["author"], icon_url=cached_msg["icon_url"])
+        embed.set_author(name=cached_msg["author"], icon_url=cached_msg["icon"])
         await ctx.send(embed=embed)
 
     @snipe.command(name="add")
@@ -80,7 +80,7 @@ class Snipe(Cog):
 
         self.cache.appendleft(
             {
-                "author": f"{message.author.display_name} [{message.author.id}]",
+                "author": f"{message.author.display_name}\n({message.author.id})",
                 "icon": message.author.display_avatar,
                 "content": message.content,
                 "date": datetime.now(),

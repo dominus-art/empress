@@ -10,7 +10,7 @@ class Newbie(Cog):
 
     @cmd.command(name="newbie")
     async def newbie(self, ctx: Context):
-        await ctx.send("Newbie")
+        await ctx.reply(f"Hello there, {ctx.author.mention}!")
 
     async def cog_command_error(
         self, ctx: ApplicationContext, error: Exception
