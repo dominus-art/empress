@@ -17,6 +17,7 @@ async def add_badwords(
         tmp.extend(badwords)
         user.bad_words = json.dumps(tmp)
         await db.commit()
+        await db.refresh(user)
         return user
 
 
@@ -40,6 +41,7 @@ async def remove_badwords(
 
         user.bad_words = json.dumps(tmp)
         await db.commit()
+        await db.refresh(user)
         return (user, actions)
 
 
@@ -60,4 +62,5 @@ async def set_lives(discord_id: int, lives: int) -> Model.User:
         user: Model.User = await db.get(Model.User, discord_id)
         user.lives = lives
         await db.commit()
+        await db.refresh(user)
         return user

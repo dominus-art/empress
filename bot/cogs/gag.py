@@ -32,7 +32,7 @@ class Gag(Cog):
     @can_ungag()
     async def ungag(self, ctx: Context, user: Member):
         embed = gag_embed(ctx)
-        embed.description = (f"{user.mention} is free to speak again!",)
+        embed.description = f"{user.mention} is free to speak again!"
         if self.gag_role in user.roles:
             await user.remove_roles(self.gag_role)
         elif self.uwu_role in user.roles:
@@ -79,7 +79,6 @@ class Gag(Cog):
 
         await user.add_roles(self.gag_role)
         embed.color = Color.dark_purple()
-        embed.url = user.avatar
         embed.description = f"{user.mention} now has ball gag in their mouth."
         await ctx.send(embed=embed)
 

@@ -69,7 +69,7 @@ def is_trusted_member() -> Callable[[T], T]:
 
 def can_ungag() -> Callable[[T], T]:
     async def predicate(ctx: Context) -> bool:
-        ungag_roles = set(*get_settings().ADMIN_ROLES, get_settings().DOM_ROLE)
+        ungag_roles = set([*get_settings().ADMIN_ROLES, get_settings().DOM_ROLE])
         author_roles = set(role.id for role in ctx.author.roles)
         if author_roles.isdisjoint(ungag_roles):
             raise CheckFailure("You're not allowed to ungag anyone.")

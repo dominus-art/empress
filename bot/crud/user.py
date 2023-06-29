@@ -15,5 +15,5 @@ async def create_user(discord_id: int) -> Model.User:
 
 async def get_user(discord_id: int) -> Model.User:
     db: AsyncSession
-    with get_session() as db:
+    async with get_session() as db:
         return await db.get(Model.User, discord_id)

@@ -67,13 +67,21 @@ class Badwords(Cog):
 
         words_to_add = [word.strip().replace(",", "") for word in words.split()]
         await crud.badwords.add_badwords(user.id, words_to_add)
-        await crud.badwords.set_lives(user.id, lives)
+        had_previous_lives = False
+        if not db_user.lives > 0:
+            await crud.badwords.set_lives(user.id, lives)
+        else:
+            had_previous_lives = True
 
         await user.add_roles(self.badword_role)
+        # TODO: Debug why the updated object doesn't get returned from crud operations
+        # should use the returned sqlalchemy object but for some reasons I cannot understand it doesn't get updated
+        # the database gets updated so we use params passed to the command directly instead to give user some feedback
+        # can't be bothered to debug it now
         embed.add_field(
-            name="Forbidden Words:", value=", ".join(json.loads(db_user.bad_words))
+            name="Forbidden Words:", value=", ".join([*words_to_add, *json.loads(db_user.bad_words)])
         )
-        embed.add_field(name="Lives:", value=db_user.lives)
+        embed.add_field(name="Lives:", value=lives if had_previous_lives else f"Lives not updated. User already had lives set.\nCurrent lives: {db_user.lives}")
         await ctx.send(embed=embed)
 
     @badword.command(name="remove")
