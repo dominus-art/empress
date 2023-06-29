@@ -1,28 +1,33 @@
-from pydantic import BaseSettings
+from typing import List, Dict
 from functools import lru_cache
+
+from pydantic import BaseSettings
 
 
 class Settings(BaseSettings):
     DISCORD_TOKEN: str
-    POSTGRES_HOST: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_USER: str
-    POSTGRES_DB: str
-    POSTGRES_URI: str = None
     PREFIX: str
+    DEFAULT_COGS: List[str]
+    SNIPE_CACHE_SIZE: int
+    GUILD_ID: int
+    TECH_CHANNEL: int
+
+    SQLITE_URI: str
+    DB_NAME: str
+
+    ADMIN_ROLES: List[int]
+    TECH_ROLE: int
+    BADWORDS_ROLE: int
+    PEACE_ROLE: int
+    DOM_ROLE: int
+    SWITCH_ROLE: int
+    SUB_ROLE: int
+    GAG_ROLES: Dict[str, int]
 
     class Config:
-        env_file = "~/roq-bot/env/bot.env"
+        env_file = "~/empress/env/bot.env"
 
 
 @lru_cache()
 def get_settings() -> Settings:
-    tmp = Settings()
-    return Settings(
-        POSTGRES_URI="postgresql+asyncpg://{}:{}@{}:5432/{}".format(
-            tmp.POSTGRES_USER,
-            tmp.POSTGRES_PASSWORD,
-            tmp.POSTGRES_HOST,
-            tmp.POSTGRES_DB,
-        )
-    )
+    return Settings()
