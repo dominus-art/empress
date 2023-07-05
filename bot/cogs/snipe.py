@@ -69,8 +69,7 @@ class Snipe(Cog):
         )
         await ctx.reply(embed=embed)
 
-    @Cog.listener()
-    async def on_message(self, message: Message):
+    def cache_msg(self, message: Message):
         if (
             message.author.bot
             or not message.channel.id in self.snipe_channels
@@ -86,6 +85,15 @@ class Snipe(Cog):
                 "date": datetime.now(),
             }
         )
+
+    @Cog.listener()
+    async def on_message_delete(self, message: Message):
+        self.cache_msg(message)
+    
+    @Cog.listener()
+    async def on_message_edit(self, before: Message, message: Message):
+        self.cache_msg(message)
+        
 
 
 def setup(bot: Bot):
