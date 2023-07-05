@@ -17,6 +17,7 @@ async_session = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=
 
 Base = declarative_base()
 
+
 @asynccontextmanager
 async def get_session():
     try:

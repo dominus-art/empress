@@ -79,9 +79,15 @@ class Badwords(Cog):
         # the database gets updated so we use params passed to the command directly instead to give user some feedback
         # can't be bothered to debug it now
         embed.add_field(
-            name="Forbidden Words:", value=", ".join([*words_to_add, *json.loads(db_user.bad_words)])
+            name="Forbidden Words:",
+            value=", ".join([*words_to_add, *json.loads(db_user.bad_words)]),
         )
-        embed.add_field(name="Lives:", value=lives if had_previous_lives else f"Lives not updated. User already had lives set.\nCurrent lives: {db_user.lives}")
+        embed.add_field(
+            name="Lives:",
+            value=lives
+            if had_previous_lives
+            else f"Lives not updated. User already had lives set.\nCurrent lives: {db_user.lives}",
+        )
         await ctx.send(embed=embed)
 
     @badword.command(name="remove")

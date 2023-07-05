@@ -13,6 +13,7 @@ async def create_user(discord_id: int) -> Model.User:
         await db.refresh(user)
         return user
 
+
 async def get_user(discord_id: int) -> Model.User:
     db: AsyncSession
     async with get_session() as db:
