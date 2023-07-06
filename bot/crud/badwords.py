@@ -7,9 +7,7 @@ import models.user as Model
 from database import get_session
 
 
-async def add_badwords(
-    discord_id: int, badwords: List[str]
-) -> Model.User:
+async def add_badwords(discord_id: int, badwords: List[str]) -> Model.User:
     db: AsyncSession
     async with get_session() as db:
         user: Model.User = await db.get(Model.User, discord_id)

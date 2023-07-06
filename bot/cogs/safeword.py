@@ -21,7 +21,8 @@ class Safeword(Cog):
 
     @cmd.command(name="RED", aliases=["red", "R", "r"])
     async def RED(self, ctx: Context):
-        await ctx.author.remove_roles(self.bad_roles)
+        for role in self.bad_roles:
+            await ctx.author.remove_roles(role)
         await ctx.author.add_roles(self.peace_role)
         await ctx.reply(
             "You're now in peace mode. Take some time to calm down. :)", ephemeral=True

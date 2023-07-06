@@ -2,7 +2,7 @@ from datetime import datetime
 from collections import deque
 from typing import Optional
 
-from discord import Embed, Color, Message, TextChannel
+from discord import Embed, Color, Message, TextChannel, ApplicationContext
 from discord.ext import commands as cmd
 from discord.ext.commands import Cog, Bot, Context, Greedy
 
@@ -57,18 +57,6 @@ class Snipe(Cog):
         embed.add_field(name="Report:", value="\n".join(actions))
         await ctx.reply(embed=embed)
 
-    @snipe.command(name="dbg")
-    @is_maintainer()
-    async def dbg(self, ctx: Context):
-        embed = (
-            Embed()
-            .set_author(
-                name=ctx.author.display_name, icon_url=ctx.author.display_avatar
-            )
-            .add_field(name="channels", value="\n".join(self.snipe_channel_names))
-        )
-        await ctx.reply(embed=embed)
-
     def cache_msg(self, message: Message):
         if (
             message.author.bot
@@ -89,11 +77,16 @@ class Snipe(Cog):
     @Cog.listener()
     async def on_message_delete(self, message: Message):
         self.cache_msg(message)
-    
+
     @Cog.listener()
     async def on_message_edit(self, before: Message, message: Message):
         self.cache_msg(message)
-        
+
+    async def on_command_error(self, ctx: ApplicationContext, err: Exception):
+        embed = Embed()
+        embed.description = "Nothing to snipe."
+        embed.timestamp = datetime.now()
+        await ctx.send(embed=embed)
 
 
 def setup(bot: Bot):
