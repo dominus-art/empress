@@ -80,12 +80,12 @@ class Badwords(Cog):
         # can't be bothered to debug it now
         embed.add_field(
             name="Forbidden Words:",
-            value=", ".join([*words_to_add, *json.loads(db_user.bad_words)]),
+            value=", ".join(set([*words_to_add, *json.loads(db_user.bad_words)])),
         )
         embed.add_field(
             name="Lives:",
             value=lives
-            if had_previous_lives
+            if not had_previous_lives
             else f"Lives not updated. User already had lives set.\nCurrent lives: {db_user.lives}",
         )
         await ctx.send(embed=embed)
@@ -118,13 +118,13 @@ class Badwords(Cog):
     async def clear(self, ctx: Context, user: Member):
         embed = badword_embed(ctx)
         if not self.badword_role in user.roles:
-            embed.description = f"{user.display_name} has no badwords to clear."
+            embed.description = f"{user.mention} has no badwords to clear."
             await ctx.reply(embed=embed)
             return
 
         await crud.badwords.clear_badwords(user.id)
         await user.remove_roles(self.badword_role)
-        embed.description = f"{user.display_name} cleared."
+        embed.description = f"{user.mention} cleared."
         await ctx.send(embed=embed)
 
     @badword.command(name="list")
@@ -133,11 +133,11 @@ class Badwords(Cog):
         if not user:
             user = ctx.author
         if not self.badword_role in user.roles:
-            embed.description = f"{user.display_name} has no badwords."
+            embed.description = f"{user.mention} has no badwords."
             await ctx.send(embed=embed)
             return
         db_user = await crud.user.get_user(user.id)
-        embed.description = f"{user.display_name}"
+        embed.description = f"{user.mention}"
         embed.add_field(
             name="Forbidden Words:", value=", ".join(json.loads(db_user.bad_words))
         )

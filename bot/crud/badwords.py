@@ -13,7 +13,8 @@ async def add_badwords(discord_id: int, badwords: List[str]) -> Model.User:
         user: Model.User = await db.get(Model.User, discord_id)
         tmp: list = json.loads(user.bad_words)
         tmp.extend(badwords)
-        user.bad_words = json.dumps(tmp)
+        no_duplicates = set(tmp)
+        user.bad_words = json.dumps(list(no_duplicates))
         await db.commit()
         await db.refresh(user)
         return user
@@ -33,9 +34,9 @@ async def remove_badwords(
         for word in badwords:
             try:
                 tmp.remove(word)
-                actions.append(f"Added {word}")
+                actions.append(f"Removed {word}")
             except ValueError:
-                actions.append(f"{word} is not badworded for this user")
+                actions.append(f"{word} is not forbidden for this user")
 
         user.bad_words = json.dumps(tmp)
         await db.commit()
