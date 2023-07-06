@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import models.tandd as Model
 from database import get_session
 
+
 async def create_truth(rating: int, content: str) -> Model.Truth:
     db: AsyncSession
     async with get_session() as db:

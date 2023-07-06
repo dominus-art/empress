@@ -5,7 +5,10 @@ import os
 
 db_name = os.urandom(32).hex()
 
-db_vars = {"DB_NAME": f"{db_name}.db", "SQLITE_URI": f"sqlite+aiosqlite:///./db/{db_name}.db"}
+db_vars = {
+    "DB_NAME": f"{db_name}.db",
+    "SQLITE_URI": f"sqlite+aiosqlite:///./db/{db_name}.db",
+}
 
 bot_vars = {
     "DISCORD_TOKEN": "placeholder",
@@ -21,7 +24,7 @@ bot_vars = {
     "DOM_ROLE": -1,
     "SWITCH_ROLE": -1,
     "TECH_ROLE": -1,
-    "TECH_CHANNEL": -1
+    "TECH_CHANNEL": -1,
 }
 bot_vars.update(db_vars)
 
