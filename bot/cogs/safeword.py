@@ -25,7 +25,7 @@ class Safeword(Cog):
             await ctx.author.remove_roles(role)
         await ctx.author.add_roles(self.peace_role)
         await ctx.reply(
-            "You're now in peace mode. Take some time to calm down. :)", ephemeral=True
+            "You're now in peace mode. Take some time to calm down. Use `&peaceoff` when You're ready."
         )
 
     @cmd.command(name="PEACE", aliases=["peace"])
