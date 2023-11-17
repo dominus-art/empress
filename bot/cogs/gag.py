@@ -11,6 +11,7 @@ from discord.ext.commands import Cog, Bot, Context
 from config import get_settings
 from utils.checks import can_have_fun, can_ungag
 from utils.embed import gag_embed
+import help.gag as helpfor
 
 emoji_regex = re.compile(r"<:(.+):(\d+)>")
 
@@ -28,7 +29,7 @@ class Gag(Cog):
         if ctx.invoked_subcommand is None:
             return
 
-    @cmd.command(name="ungag")
+    @cmd.command(name="ungag", help=helpfor.UNGAG)
     @can_ungag()
     async def ungag(self, ctx: Context, user: Member):
         embed = gag_embed(ctx)
@@ -39,7 +40,7 @@ class Gag(Cog):
             await user.remove_roles(self.uwu_role)
         await ctx.send(embed=embed)
 
-    @gag.command(name="uwu")
+    @gag.command(name="uwu", help=helpfor.UWU)
     @can_have_fun()
     async def gag_uwu(self, ctx: Context, user: Member):
         target_roles = set([role.id for role in user.roles])
@@ -60,7 +61,7 @@ class Gag(Cog):
         embed.color = Color.dark_purple()
         await ctx.send(embed=embed)
 
-    @gag.command(name="ball")
+    @gag.command(name="ball", help=helpfor.BALL)
     @can_have_fun()
     async def gag_ball(self, ctx: Context, user: Member):
         target_roles = set([role.id for role in user.roles])
@@ -102,6 +103,8 @@ class Gag(Cog):
 
     @Cog.listener()
     async def on_message(self, message: Message):
+        if message.author.bot:
+            return
         if (
             not self.gag_role in message.author.roles
             and not self.uwu_role in message.author.roles

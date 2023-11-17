@@ -6,6 +6,7 @@ from discord.ext.commands import Context, Cog, Bot
 from discord.ext import commands as cmd
 
 from config import get_settings
+import help.safeword as helpfor
 
 
 class Safeword(Cog):

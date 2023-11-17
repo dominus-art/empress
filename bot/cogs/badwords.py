@@ -16,6 +16,9 @@ from database import get_session
 from config import get_settings
 from utils.embed import badword_embed
 from utils.checks import can_have_fun
+from help.badwords import (
+    ADD, CLEAR, REMOVE, LIST
+)
 
 
 class Badwords(Cog):
@@ -35,13 +38,7 @@ class Badwords(Cog):
 
     @badword.command(
         name="add",
-        help="""Command arguments:
-            - user: user id or @user
-            - lives: optional number, defaults to 3 if not supplied
-            - words: words separated by a space, case sensitive
-            
-            Example usage:
-            &badword add @user 5 Napoleon napoleon Milk nun""",
+        help=ADD
     )
     @can_have_fun()
     async def add(
@@ -90,7 +87,7 @@ class Badwords(Cog):
         )
         await ctx.send(embed=embed)
 
-    @badword.command(name="remove")
+    @badword.command(name="remove", help=REMOVE)
     @can_have_fun()
     async def remove(self, ctx: Context, user: Member, *, words: str):
         embed = badword_embed(ctx)
@@ -114,7 +111,7 @@ class Badwords(Cog):
         embed.add_field(name="Raport:", value=", ".join(action_result))
         await ctx.send(embed=embed)
 
-    @badword.command(name="clear")
+    @badword.command(name="clear", help=CLEAR)
     async def clear(self, ctx: Context, user: Member):
         embed = badword_embed(ctx)
         if not self.badword_role in user.roles:
@@ -127,7 +124,7 @@ class Badwords(Cog):
         embed.description = f"{user.mention} cleared."
         await ctx.send(embed=embed)
 
-    @badword.command(name="list")
+    @badword.command(name="list", help=LIST)
     async def list(self, ctx: Context, user: Optional[Union[Member, None]] = None):
         embed = badword_embed(ctx)
         if not user:

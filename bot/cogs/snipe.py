@@ -9,6 +9,8 @@ from discord.ext.commands import Cog, Bot, Context, Greedy
 from config import get_settings
 from utils.checks import is_maintainer
 
+import help.snipe as helpfor
+
 
 class Snipe(Cog):
     def __init__(self, bot: Bot) -> None:
@@ -18,7 +20,7 @@ class Snipe(Cog):
         self.snipe_channels = set()
         self.snipe_channel_names = set()
 
-    @cmd.group(name="s", invoke_without_command=True, aliases=["snipe", "sniper"])
+    @cmd.group(name="s", invoke_without_command=True, aliases=["snipe", "sniper"], help=helpfor.SNIPE)
     async def snipe(self, ctx: Context, index: Optional[int] = 1):
         i = index - 1
         cached_msg = self.cache[i]
@@ -26,9 +28,10 @@ class Snipe(Cog):
         embed.add_field(name="", value=cached_msg["content"])
         embed.timestamp = cached_msg["date"]
         embed.set_author(name=cached_msg["author"], icon_url=cached_msg["icon"])
+        # embed.set_image(cached_msg["attachments"])
         await ctx.send(embed=embed)
 
-    @snipe.command(name="add")
+    @snipe.command(name="add", help=helpfor.ADD)
     @is_maintainer()
     async def add(self, ctx: Context, channels: Greedy[TextChannel]):
         embed = Embed(color=Color.dark_gold()).set_author(
@@ -42,7 +45,7 @@ class Snipe(Cog):
         )
         await ctx.reply(embed=embed)
 
-    @snipe.command(name="remove")
+    @snipe.command(name="remove", help=helpfor.REMOVE)
     @is_maintainer()
     async def remove(self, ctx: Context, channels: Greedy[TextChannel]):
         embed = Embed().set_author(
@@ -70,6 +73,7 @@ class Snipe(Cog):
                 "author": f"{message.author.display_name}\n({message.author.id})",
                 "icon": message.author.display_avatar,
                 "content": message.content,
+                "attachments": message.attachments if message.attachments else None,
                 "date": datetime.now(),
             }
         )
@@ -80,7 +84,7 @@ class Snipe(Cog):
 
     @Cog.listener()
     async def on_message_edit(self, before: Message, message: Message):
-        self.cache_msg(message)
+        self.cache_msg(before)
 
     async def on_command_error(self, ctx: ApplicationContext, err: Exception):
         embed = Embed()
