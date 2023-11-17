@@ -25,6 +25,7 @@ class Gag(Cog):
         self.uwu_role: Role = guild.get_role(get_settings().GAG_ROLES["uwu"])
 
     @cmd.group(name="gag", invoke_without_command=True)
+    @can_have_fun()
     async def gag(self, ctx: Context):
         if ctx.invoked_subcommand is None:
             return

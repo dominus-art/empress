@@ -32,6 +32,7 @@ class Badwords(Cog):
         ]
 
     @cmd.group(name="badword")
+    @can_have_fun()
     async def badword(self, ctx: Context):
         if ctx.invoked_subcommand is None:
             return
