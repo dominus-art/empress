@@ -17,6 +17,7 @@ from crud.tandd import (
 from database import get_session
 from utils.checks import is_trusted_member
 from utils.embed import tandd_embed
+import help.tandd as helpfor
 
 
 RATE_MAPPING_IN = {"R": 0, "PG": 1}
@@ -47,7 +48,7 @@ class Tandd(Cog):
         embed.set_footer(text="TRUTH | Rating: R")
         await ctx.reply(embed=embed)
 
-    @truth.command(name="create")
+    @truth.command(name="create", help=helpfor.CREATE)
     @is_trusted_member()
     async def create_t(self, ctx: Context, rating: str, *, content: str):
         new_truth = await create_truth(RATE_MAPPING_IN[rating.upper()], content)
@@ -79,7 +80,7 @@ class Tandd(Cog):
         embed.set_footer(text=f"DARE | Rating: R")
         await ctx.reply(embed=embed)
 
-    @dare.command(name="create")
+    @dare.command(name="create", help=helpfor.CREATE)
     @is_trusted_member()
     async def create_d(self, ctx: Context, rating: str, *, content: str):
         new_dare = await create_dare(RATE_MAPPING_IN[rating.upper()], content)
