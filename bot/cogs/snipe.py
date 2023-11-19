@@ -1,6 +1,6 @@
 from datetime import datetime
 from collections import deque
-from typing import Optional
+from typing import Optional, Dict, Any
 
 from discord import Embed, Color, Message, TextChannel, ApplicationContext
 from discord.ext import commands as cmd
@@ -16,14 +16,14 @@ class Snipe(Cog):
     def __init__(self, bot: Bot) -> None:
         super().__init__()
         self.bot = bot
-        self.cache = deque(maxlen=get_settings().SNIPE_CACHE_SIZE)
-        self.snipe_channels = set()
+        self.cache: Dict[Any, deque] = {} # deque(maxlen=get_settings().SNIPE_CACHE_SIZE)
+        # self.snipe_channels = set()
         self.snipe_channel_names = set()
 
     @cmd.group(name="s", invoke_without_command=True, aliases=["snipe", "sniper"], help=helpfor.SNIPE)
     async def snipe(self, ctx: Context, index: Optional[int] = 1):
         i = index - 1
-        cached_msg = self.cache[i]
+        cached_msg = self.cache[ctx.channel.id][i]
         embed = Embed()
         embed.add_field(name="", value=cached_msg["content"])
         embed.timestamp = cached_msg["date"]
@@ -38,7 +38,7 @@ class Snipe(Cog):
             name=ctx.author.mention, icon_url=ctx.author.display_avatar
         )
         for channel in channels:
-            self.snipe_channels.add(channel.id)
+            self.cache[channel.id] = deque(maxlen=get_settings().SNIPE_CACHE_SIZE)
             self.snipe_channel_names.add(channel.name)
         embed.add_field(
             name="Watching channels:", value="\n".join(self.snipe_channel_names)
@@ -53,7 +53,7 @@ class Snipe(Cog):
         )
         actions = []
         for channel in channels:
-            self.snipe_channels.remove(channel.id)
+            del self.cache[channel.id]
             self.snipe_channel_names.remove(channel.name)
             actions.append(f"removed {channel.name}")
 
@@ -63,12 +63,11 @@ class Snipe(Cog):
     def cache_msg(self, message: Message):
         if (
             message.author.bot
-            or not message.channel.id in self.snipe_channels
+            or not message.channel.id in self.cache
             or message.content.startswith(get_settings().PREFIX)
         ):
             return
-
-        self.cache.appendleft(
+        self.cache[message.channel.id].appendleft(
             {
                 "author": f"{message.author.display_name}\n({message.author.id})",
                 "icon": message.author.display_avatar,
@@ -86,7 +85,7 @@ class Snipe(Cog):
     async def on_message_edit(self, before: Message, message: Message):
         self.cache_msg(before)
 
-    async def on_command_error(self, ctx: ApplicationContext, err: Exception):
+    async def cog_command_error(self, ctx: ApplicationContext, err: Exception):
         embed = Embed()
         embed.description = "Nothing to snipe."
         embed.timestamp = datetime.now()
