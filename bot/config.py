@@ -24,6 +24,11 @@ class Settings(BaseSettings):
     SUB_ROLE: int
     GAG_ROLES: Dict[str, int]
 
+    NOMEDIA_ROLE: int
+    NOREACTIONS_ROLE: int
+    NOSPEECH_ROLE: int
+    NONSFW_ROLE: int
+
     class Config:
         env_file = "~/empress/env/bot.env"
 
