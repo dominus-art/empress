@@ -141,8 +141,7 @@ class Badwords(Cog):
         )
         await ctx.send(embed=embed)
 
-    @Cog.listener()
-    async def on_message(self, message: Message):
+    async def _check_message_for_badwords(self, message: Message):
         if message.author.bot:
             return
         if self.badword_role not in message.author.roles:
@@ -172,6 +171,14 @@ class Badwords(Cog):
             timestamp=datetime.now(),
         )
         await message.channel.send(embed=embed)
+
+    @Cog.listener()
+    async def on_message(self, message: Message):
+        await self._check_message_for_badwords(message)
+
+    @Cog.listener()
+    async def on_message_edit(self, before: Message, message: Message):
+        await self._check_message_for_badwords(message)
 
     async def cog_command_error(
         self, ctx: ApplicationContext, error: Exception
