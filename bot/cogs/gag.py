@@ -15,6 +15,8 @@ import help.gag as helpfor
 
 emoji_regex = re.compile(r"<:(.+):(\d+)>")
 
+debtors_ids =[]
+
 
 class Gag(Cog):
     def __init__(self, bot: Bot) -> None:
@@ -127,6 +129,13 @@ class Gag(Cog):
             username=message.author.display_name,
             avatar_url=message.author.display_avatar,
         )
+
+    @Cog.listener()
+    async def on_member_update(self, before: Member, after: Member):
+        if before.id not in debtors_ids:
+            return
+        if not self.uwu_role in after.roles:
+            await after.add_roles(self.uwu_role)
 
     async def cog_command_error(
         self, ctx: ApplicationContext, error: Exception
