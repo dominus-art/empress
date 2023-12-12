@@ -41,22 +41,27 @@ class Gag(Cog):
             await user.remove_roles(self.uwu_role)
         await ctx.send(embed=embed)
 
-    @gag.command(name="uwu", help=helpfor.UWU)
-    @can_have_fun()
-    async def gag_uwu(self, ctx: Context, user: Member):
+    async def _check_if_not_gaggable(self, ctx: Context, user: Member):
         target_roles = set([role.id for role in user.roles])
-        embed = gag_embed(ctx)
         if (
             get_settings().DOM_ROLE in target_roles
             and get_settings().SWITCH_ROLE not in target_roles
         ):
             embed.description = "Cannot apply gag to a Domme."
             await ctx.reply(embed=embed)
-            return
+            return True
         elif ctx.author.id == user.id:
             embed.description = "Don't gag yourself..."
             await ctx.reply(embed=embed)
+            return True
+        False
+
+    @gag.command(name="uwu", help=helpfor.UWU)
+    @can_have_fun()
+    async def gag_uwu(self, ctx: Context, user: Member):
+        if await self._check_if_not_gaggable(ctx, user):
             return
+        embed = gag_embed(ctx)
         await user.add_roles(self.uwu_role)
         embed.description = f"{user.mention} {uwuify.uwu('will now speak like this!')}"
         embed.color = Color.dark_purple()
@@ -65,20 +70,8 @@ class Gag(Cog):
     @gag.command(name="ball", help=helpfor.BALL)
     @can_have_fun()
     async def gag_ball(self, ctx: Context, user: Member):
-        target_roles = set([role.id for role in user.roles])
-        embed = gag_embed(ctx)
-        if (
-            get_settings().DOM_ROLE in target_roles
-            and get_settings().SWITCH_ROLE not in target_roles
-        ):
-            embed.description = "Cannot apply gag to a Domme."
-            await ctx.reply(embed=embed)
+        if await self._check_if_not_gaggable(ctx, user):
             return
-        elif ctx.author.id == user.id:
-            embed.description = "Don't gag yourself..."
-            await ctx.reply(embed=embed)
-            return
-
         await user.add_roles(self.gag_role)
         embed.color = Color.dark_purple()
         embed.description = f"{user.mention} now has ball gag in their mouth."
@@ -102,14 +95,17 @@ class Gag(Cog):
         flags = [uwuify.SMILEY, uwuify.STUTTER, uwuify.YU]
         return uwuify.uwu(msg, flags=random.choice(flags))
 
+    def _check_if_gagged(self, message: Message):
+        target_roles = set([role.id for role in message.author.roles])
+        gag_roles = set([self.gag_role, self.uwu_role])
+        return target_roles.isdisjoint(gag_roles)
+
+
     @Cog.listener()
     async def on_message(self, message: Message):
         if message.author.bot:
             return
-        if (
-            self.gag_role not in message.author.roles
-            and self.uwu_role not in message.author.roles
-        ):
+        if self._check_if_gagged(message):
             return
 
         webhooks = self.bot.get_cog("Webhooks").webhooks
