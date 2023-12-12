@@ -1,7 +1,5 @@
 from datetime import datetime
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from discord import ApplicationContext
 from discord.ext import commands as cmd
 from discord.ext.commands import Cog, Bot, Context
@@ -14,7 +12,6 @@ from crud.tandd import (
     get_random_r_dare,
     get_random_r_question,
 )
-from database import get_session
 from utils.checks import is_trusted_member
 from utils.embed import tandd_embed
 import help.tandd as helpfor
@@ -77,7 +74,7 @@ class Tandd(Cog):
         dare = await get_random_r_dare()
         embed = tandd_embed(ctx)
         embed.add_field(name=dare.dare, value="")
-        embed.set_footer(text=f"DARE | Rating: R")
+        embed.set_footer(text="DARE | Rating: R")
         await ctx.reply(embed=embed)
 
     @dare.command(name="create", help=helpfor.CREATE)

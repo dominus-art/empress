@@ -28,7 +28,7 @@ bot_vars = {
     "NOSPEECH_ROLE": -1,
     "NONSFW_ROLE": -1,
     "NOMEDIA_ROLE": -1,
-    "NOREACTIONS_ROLE": -1
+    "NOREACTIONS_ROLE": -1,
 }
 bot_vars.update(db_vars)
 

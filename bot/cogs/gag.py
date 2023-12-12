@@ -54,7 +54,7 @@ class Gag(Cog):
             await ctx.reply(embed=embed)
             return
         elif ctx.author.id == user.id:
-            embed.description = f"Don't gag yourself..."
+            embed.description = "Don't gag yourself..."
             await ctx.reply(embed=embed)
             return
         await user.add_roles(self.uwu_role)
@@ -75,7 +75,7 @@ class Gag(Cog):
             await ctx.reply(embed=embed)
             return
         elif ctx.author.id == user.id:
-            embed.description = f"Don't gag yourself..."
+            embed.description = "Don't gag yourself..."
             await ctx.reply(embed=embed)
             return
 
@@ -107,13 +107,13 @@ class Gag(Cog):
         if message.author.bot:
             return
         if (
-            not self.gag_role in message.author.roles
-            and not self.uwu_role in message.author.roles
+            self.gag_role not in message.author.roles
+            and self.uwu_role not in message.author.roles
         ):
             return
 
         webhooks = self.bot.get_cog("Webhooks").webhooks
-        if not message.channel.id in webhooks:
+        if message.channel.id not in webhooks:
             return
 
         await message.delete()

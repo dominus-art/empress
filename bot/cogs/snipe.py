@@ -16,11 +16,18 @@ class Snipe(Cog):
     def __init__(self, bot: Bot) -> None:
         super().__init__()
         self.bot = bot
-        self.cache: Dict[Any, deque] = {} # deque(maxlen=get_settings().SNIPE_CACHE_SIZE)
+        self.cache: Dict[
+            Any, deque
+        ] = {}  # deque(maxlen=get_settings().SNIPE_CACHE_SIZE)
         # self.snipe_channels = set()
         self.snipe_channel_names = set()
 
-    @cmd.group(name="s", invoke_without_command=True, aliases=["snipe", "sniper"], help=helpfor.SNIPE)
+    @cmd.group(
+        name="s",
+        invoke_without_command=True,
+        aliases=["snipe", "sniper"],
+        help=helpfor.SNIPE,
+    )
     async def snipe(self, ctx: Context, index: Optional[int] = 1):
         i = index - 1
         cached_msg = self.cache[ctx.channel.id][i]
@@ -63,7 +70,7 @@ class Snipe(Cog):
     def cache_msg(self, message: Message):
         if (
             message.author.bot
-            or not message.channel.id in self.cache
+            or message.channel.id not in self.cache
             or message.content.startswith(get_settings().PREFIX)
         ):
             return

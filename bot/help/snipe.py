@@ -1,4 +1,5 @@
 from config import get_settings
+
 prefix = get_settings().PREFIX
 cache = get_settings().SNIPE_CACHE_SIZE
 SNIPE = f"""

@@ -3,22 +3,16 @@ from datetime import datetime
 from typing import List, Optional, Union
 import random
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from discord import Member, Message, Role, ApplicationContext, Embed, Color
+from discord import Member, Message, Role, ApplicationContext, Embed
 from discord.ext import commands as cmd
 from discord.ext.commands import Context, Cog, Bot
 
 import crud.user
 import crud.badwords
-from models.user import User as DbUser
-from database import get_session
 from config import get_settings
 from utils.embed import badword_embed
 from utils.checks import can_have_fun
-from help.badwords import (
-    ADD, CLEAR, REMOVE, LIST
-)
+from help.badwords import ADD, CLEAR, REMOVE, LIST
 
 
 class Badwords(Cog):
@@ -37,10 +31,7 @@ class Badwords(Cog):
         if ctx.invoked_subcommand is None:
             return
 
-    @badword.command(
-        name="add",
-        help=ADD
-    )
+    @badword.command(name="add", help=ADD)
     @can_have_fun()
     async def add(
         self, ctx: Context, user: Member, lives: Optional[int] = 3, *, words: str
@@ -48,7 +39,7 @@ class Badwords(Cog):
         embed = badword_embed(ctx)
         target_roles = set([role.id for role in user.roles])
         if user.id == ctx.author.id:
-            embed.description = f"Don't play with yourself... weirdo"
+            embed.description = "Don't play with yourself... weirdo"
             await ctx.reply(embed=embed)
             return
         if (
@@ -92,7 +83,7 @@ class Badwords(Cog):
     @can_have_fun()
     async def remove(self, ctx: Context, user: Member, *, words: str):
         embed = badword_embed(ctx)
-        if not self.badword_role in user.roles:
+        if self.badword_role not in user.roles:
             embed.description = f"{user.mention} has no badwords to remove."
             await ctx.reply(embed=embed)
             return
@@ -115,7 +106,7 @@ class Badwords(Cog):
     @badword.command(name="clear", help=CLEAR)
     async def clear(self, ctx: Context, user: Member):
         embed = badword_embed(ctx)
-        if not self.badword_role in user.roles:
+        if self.badword_role not in user.roles:
             embed.description = f"{user.mention} has no badwords to clear."
             await ctx.reply(embed=embed)
             return
@@ -130,7 +121,7 @@ class Badwords(Cog):
         embed = badword_embed(ctx)
         if not user:
             user = ctx.author
-        if not self.badword_role in user.roles:
+        if self.badword_role not in user.roles:
             embed.description = f"{user.mention} has no badwords."
             await ctx.send(embed=embed)
             return
