@@ -12,9 +12,9 @@ from config import get_settings
 from utils.checks import can_have_fun, can_ungag
 from utils.embed import gag_embed
 import help.gag as helpfor
+import crud.gag
 
 emoji_regex = re.compile(r"<:(.+):(\d+)>")
-
 
 class Gag(Cog):
     def __init__(self, bot: Bot) -> None:
@@ -23,6 +23,10 @@ class Gag(Cog):
         guild = self.bot.get_guild(get_settings().GUILD_ID)
         self.gag_role: Role = guild.get_role(get_settings().GAG_ROLES["ball"])
         self.uwu_role: Role = guild.get_role(get_settings().GAG_ROLES["uwu"])
+        self.roles = set([self.gag_role, self.uwu_role])
+
+        self.db_ungag = crud.gag.ungag
+        self.db_gag = crud.gag.gag
 
     @cmd.group(name="gag", invoke_without_command=True)
     @can_have_fun()
@@ -35,6 +39,7 @@ class Gag(Cog):
     async def ungag(self, ctx: Context, user: Member):
         embed = gag_embed(ctx)
         embed.description = f"{user.mention} is free to speak again!"
+        await self.db_ungag(user.id)
         if self.gag_role in user.roles:
             await user.remove_roles(self.gag_role)
         elif self.uwu_role in user.roles:
@@ -63,6 +68,7 @@ class Gag(Cog):
             return
         embed = gag_embed(ctx)
         await user.add_roles(self.uwu_role)
+        await self.db_gag(user.id)
         embed.description = f"{user.mention} {uwuify.uwu('will now speak like this!')}"
         embed.color = Color.dark_purple()
         await ctx.send(embed=embed)
@@ -73,6 +79,8 @@ class Gag(Cog):
         if await self._check_if_not_gaggable(ctx, user):
             return
         await user.add_roles(self.gag_role)
+        await self.db_gag(user.id)
+        embed = gag_embed(ctx)
         embed.color = Color.dark_purple()
         embed.description = f"{user.mention} now has ball gag in their mouth."
         await ctx.send(embed=embed)
@@ -129,6 +137,23 @@ class Gag(Cog):
     ) -> None:
         embed = Embed(description=error)
         await ctx.send(embed=embed)
+
+    @Cog.listener()
+    async def on_member_update(self, before: Member, after: Member):
+        db_user = await crud.user.get_user(before.id)
+        if not db_user:
+            return
+        if not db_user.role_lock:
+            return
+        before_roles_set = {role for role in before.roles if role in self.roles}
+        after_roles_set = {role for role in after.roles if role in self.roles}
+        if not before_roles_set.isdisjoint(after_roles_set):
+            return
+        else:
+            for role in before_roles_set:
+                await after.add_roles(role)
+
+        
 
 
 def setup(bot: Bot):

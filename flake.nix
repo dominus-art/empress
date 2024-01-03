@@ -16,8 +16,9 @@
                                     python.pkgs.setuptools
                                     python.pkgs.wheel
                                     python.pkgs.venvShellHook
-                                    python.pkgs.pydantic
-                                    python.pkgs.sqlalchemy
+                                    python.pkgs.alembic
+                                    python.pkgs.black
+                                    python.pkgs.mypy
                                 ];
                                 venvDir = "venv";
                                 src = null;

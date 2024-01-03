@@ -9,6 +9,7 @@ from discord.ext.commands import Context, Cog, Bot
 
 import crud.user
 import crud.badwords
+import crud.gag
 from config import get_settings
 from utils.embed import badword_embed
 from utils.checks import can_have_fun
@@ -155,6 +156,7 @@ class Badwords(Cog):
             await message.author.add_roles(gag_role)
             await message.author.remove_roles(self.badword_role)
             await message.channel.send(embed=embed)
+            await crud.gag.lock_roles(message.author.id)
             return
         user = await crud.badwords.set_lives(message.author.id, lives)
         embed = Embed(
