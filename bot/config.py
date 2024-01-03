@@ -1,7 +1,7 @@
 from typing import List, Dict
 from functools import lru_cache
 
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     NONSFW_ROLE: int
 
     class Config:
-        env_file = "~/empress/env/bot.env"
+        env_file = "~/personal-projects/empress/env/bot.env"
 
 
 @lru_cache()
