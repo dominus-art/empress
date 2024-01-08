@@ -9,7 +9,7 @@ from config import get_settings
 engine = create_async_engine(
     get_settings().SQLITE_URI,
     future=True,
-    echo=True,
+    # echo=True,
     connect_args={"check_same_thread": False},
 )
 

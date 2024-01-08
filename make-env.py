@@ -17,7 +17,7 @@ bot_vars = {
     "GUILD_ID": -1,
     "DEFAULT_COGS": ["abc", "xyz"],
     "ADMIN_ROLES": [-1, -1],
-    "GAG_ROLES": {"ball": -1, "uwu": -1},
+    "GAG_ROLES": {"ball": -1, "uwu": -1, "kitty": -1},
     "BADWORDS_ROLE": -1,
     "PEACE_ROLE": -1,
     "SUB_ROLE": -1,
