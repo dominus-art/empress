@@ -17,15 +17,21 @@ import crud.gag
 
 emoji_regex = re.compile(r"<:(.+):(\d+)>")
 
+kitty_messages = [
+    "I just spit out a huge hair ball",
+    "I just pooped under the couch"
+]
+
 kitty_sounds = [
     "*mrrp*",
     "*meow*",
     "*nya*"
 ]
 
-kitty_not_map = {
+kitty_map = {
     "n't": "nyan't",
-    "not": "nyan't"
+    "not": "nyan't",
+    "wo": "will"
 }
 
 class Gag(Cog):
@@ -130,17 +136,20 @@ class Gag(Cog):
         return uwuify.uwu(msg, flags=random.choice(flags))
     
     def kitty(self, msg: str) -> str:
+        if random.randint(0, 100) > 98:
+            msg = random.choice(kitty_messages)
         words = nltk.word_tokenize(msg)
         tmp = []
+        word: str
         for word in words:
-            if word in {"n't", "not"}:
-                tmp.append(kitty_not_map[word])
-            elif word == "wo":
-                tmp.append("will")
+            if word in kitty_map:
+                tmp.append(kitty_map[word])
+            elif "ur" in word:
+                tmp.append(word.replace("ur", f"pur{'r'*random.randint(0, 5)}"))
             else:
                 tmp_word = word
-                chance = random.randint(0, 10)
-                if chance > 9:
+                chance = random.randint(0, 7)
+                if chance > 6:
                     tmp_word += f" {random.choice(kitty_sounds)}"
                 tmp.append(tmp_word)
         tmp.insert(0, random.choice(kitty_sounds))
