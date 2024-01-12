@@ -171,7 +171,7 @@ class Gag(Cog):
             if random.randint(0, 6) > 5:
                 ret += f"{word} {random.choice(kitty_sounds)} "
             else:
-                ret += word
+                ret += f"{word} "
         return ret
 
     def kitty(self, msg: str) -> str:
