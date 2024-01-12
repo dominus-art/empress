@@ -169,7 +169,7 @@ class Gag(Cog):
         ret = f"{random.choice(kitty_sounds)} "
         for word in msg.split():
             if random.randint(0, 6) > 5:
-                ret += f"{word} {random.choice(kitty_sounds)}"
+                ret += f"{word} {random.choice(kitty_sounds)} "
             else:
                 ret += word
         return ret
