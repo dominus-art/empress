@@ -1,9 +1,9 @@
 import random
 import re
+from enum import Enum
 
 import validators
 import uwuify
-import nltk
 
 from discord import Member, Message, Webhook, Role, ApplicationContext, Embed, Color
 from discord.ext import commands as cmd
@@ -15,24 +15,45 @@ from utils.embed import gag_embed
 import help.gag as helpfor
 import crud.gag
 
-emoji_regex = re.compile(r"<:(.+):(\d+)>")
+emoji_regex = re.compile(r"<a?:(.+):(\d+)>")
+user_regex = re.compile(r"<@\d+>")
 
 kitty_messages = [
     "I just spit out a huge hair ball",
-    "I just pooped under the couch"
+    "I just pooped under the couch",
+    "I puked under the bed",
+    "I left a dookie on the bed",
+    "I pooped outside the litterbox",
+    "I'm in heat, please breed me",
+    "Cuddle with me",
+    "I want strangers to pet me",
+    "Please, rub my belly"
 ]
 
 kitty_sounds = [
     "*mrrp*",
     "*meow*",
-    "*nya*"
+    "*nya*",
+    "*rawr*",
+    "*purrr*",
+    "*mrawr*"
 ]
 
-kitty_map = {
-    "n't": "nyan't",
-    "not": "nyan't",
-    "wo": "will"
+kitty_sanitize = {
+    r"won't": "will not",
+    r"can't": "can not",
 }
+
+kitty_map = {
+    r"n't": "nyan't",
+    r"not": "nyan't",
+    r"now": "nyaw",
+    r"owner": "meowner",
+    r"know": "kneow",
+    r"mention": "meowntion",
+    r"opinion": "opinyan",
+}
+
 
 class Gag(Cog):
     def __init__(self, bot: Bot) -> None:
@@ -44,6 +65,8 @@ class Gag(Cog):
         self.kitty_role: Role = guild.get_role(get_settings().GAG_ROLES["kitty"])
         self.roles = {self.gag_role, self.uwu_role, self.kitty_role}
 
+        self.kitty_regex = {sub: re.compile(pattern) for pattern, sub in kitty_map.items()}
+        self.kitty_sanitize = {sub: re.compile(pattern) for pattern, sub in kitty_sanitize.items()}
         self.db_ungag = crud.gag.ungag
         self.db_gag = crud.gag.gag
 
@@ -134,26 +157,29 @@ class Gag(Cog):
     def uwu(self, msg: str) -> str:
         flags = [uwuify.SMILEY, uwuify.STUTTER, uwuify.YU]
         return uwuify.uwu(msg, flags=random.choice(flags))
-    
+
+    def _kittify(self, msg: str) -> str:
+        for repl, regex in self.kitty_sanitize.items():
+            msg = regex.sub(repl, msg)
+        for repl, regex in self.kitty_regex.items():
+            msg = regex.sub(repl, msg)
+        return msg
+
+    def _kittify_more(self, msg: str) -> str:
+        ret = f"{random.choice(kitty_sounds)} "
+        for word in msg.split():
+            if random.randint(0, 6) > 5:
+                ret += f"{word} {random.choice(kitty_sounds)}"
+            else:
+                ret += word
+        return ret
+
     def kitty(self, msg: str) -> str:
         if random.randint(0, 100) > 98:
             msg = random.choice(kitty_messages)
-        words = nltk.word_tokenize(msg)
-        tmp = []
-        word: str
-        for word in words:
-            if word in kitty_map:
-                tmp.append(kitty_map[word])
-            elif "ur" in word:
-                tmp.append(word.replace("ur", f"pur{'r'*random.randint(0, 5)}"))
-            else:
-                tmp_word = word
-                chance = random.randint(0, 7)
-                if chance > 6:
-                    tmp_word += f" {random.choice(kitty_sounds)}"
-                tmp.append(tmp_word)
-        tmp.insert(0, random.choice(kitty_sounds))
-        return ' '.join(tmp)
+        msg = self._kittify(msg)
+        return self._kittify_more(msg)
+        
 
     def _check_if_gagged(self, message: Message):
         target_roles = {role for role in message.author.roles}
