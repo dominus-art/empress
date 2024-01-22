@@ -27,17 +27,10 @@ kitty_messages = [
     "I'm in heat, please breed me",
     "Cuddle with me",
     "I want strangers to pet me",
-    "Please, rub my belly"
+    "Please, rub my belly",
 ]
 
-kitty_sounds = [
-    "*mrrp*",
-    "*meow*",
-    "*nya*",
-    "*rawr*",
-    "*purrr*",
-    "*mrawr*"
-]
+kitty_sounds = ["*mrrp*", "*meow*", "*nya*", "*rawr*", "*purrr*", "*mrawr*"]
 
 kitty_sanitize = {
     r"won't": "will not",
@@ -65,8 +58,12 @@ class Gag(Cog):
         self.kitty_role: Role = guild.get_role(get_settings().GAG_ROLES["kitty"])
         self.roles = {self.gag_role, self.uwu_role, self.kitty_role}
 
-        self.kitty_regex = {sub: re.compile(pattern) for pattern, sub in kitty_map.items()}
-        self.kitty_sanitize = {sub: re.compile(pattern) for pattern, sub in kitty_sanitize.items()}
+        self.kitty_regex = {
+            sub: re.compile(pattern) for pattern, sub in kitty_map.items()
+        }
+        self.kitty_sanitize = {
+            sub: re.compile(pattern) for pattern, sub in kitty_sanitize.items()
+        }
         self.db_ungag = crud.gag.ungag
         self.db_gag = crud.gag.gag
 
@@ -167,7 +164,7 @@ class Gag(Cog):
 
     def _kittify_more(self, msg: str) -> str:
         ret = f"{random.choice(kitty_sounds)} "
-        for word in msg.split():
+        for word in msg.split(" "):
             if random.randint(0, 6) > 5:
                 ret += f"{word} {random.choice(kitty_sounds)} "
             else:
@@ -179,40 +176,38 @@ class Gag(Cog):
             msg = random.choice(kitty_messages)
         msg = self._kittify(msg)
         return self._kittify_more(msg)
-        
 
     def _check_if_gagged(self, message: Message):
         target_roles = {role for role in message.author.roles}
         return target_roles.isdisjoint(self.roles)
 
-
-    @Cog.listener()
-    async def on_message(self, message: Message):
-        if message.author.bot:
-            return
-        if self._check_if_gagged(message):
-            return
-
-        webhooks = self.bot.get_cog("Webhooks").webhooks
-        if message.channel.id not in webhooks:
-            return
-
-        await message.delete()
-
-        webhook: Webhook = webhooks[message.channel.id]
-        
-        if self.gag_role in message.author.roles:
-            new_msg = self.muffle(message.content)
-        elif self.kitty_role in message.author.roles:
-            new_msg = self.kitty(message.content)
-        else:
-            new_msg = self.uwu(message.content)
-        
-        await webhook.send(
-            content=new_msg,
-            username=message.author.display_name,
-            avatar_url=message.author.display_avatar,
-        )
+    # @Cog.listener()
+    # async def on_message(self, message: Message):
+    #     if message.author.bot:
+    #         return
+    #     if self._check_if_gagged(message):
+    #         return
+    #
+    #     webhooks = self.bot.get_cog("Webhooks").webhooks
+    #     if message.channel.id not in webhooks:
+    #         return
+    #
+    #     await message.delete()
+    #
+    #     webhook: Webhook = webhooks[message.channel.id]
+    #
+    #     if self.gag_role in message.author.roles:
+    #         new_msg = self.muffle(message.content)
+    #     elif self.kitty_role in message.author.roles:
+    #         new_msg = self.kitty(message.content)
+    #     else:
+    #         new_msg = self.uwu(message.content)
+    #
+    #     await webhook.send(
+    #         content=new_msg,
+    #         username=message.author.display_name,
+    #         avatar_url=message.author.display_avatar,
+    #     )
 
     async def cog_command_error(
         self, ctx: ApplicationContext, error: Exception
@@ -220,22 +215,20 @@ class Gag(Cog):
         embed = Embed(description=error)
         await ctx.send(embed=embed)
 
-    # @Cog.listener()
-    # async def on_member_update(self, before: Member, after: Member):
-    #     db_user = await crud.user.get_user(before.id)
-    #     if not db_user:
-    #         return
-    #     if not db_user.role_lock:
-    #         return
-    #     before_roles_set = {role for role in before.roles if role in self.roles}
-    #     after_roles_set = {role for role in after.roles if role in self.roles}
-    #     if not before_roles_set.isdisjoint(after_roles_set):
-    #         return
-    #     else:
-    #         for role in before_roles_set:
-    #             await after.add_roles(role)
-
-        
+    @Cog.listener()
+    async def on_member_update(self, before: Member, after: Member):
+        db_user = await crud.user.get_user(before.id)
+        if not db_user:
+            return
+        if not db_user.role_lock:
+            return
+        before_roles_set = {role for role in before.roles if role in self.roles}
+        after_roles_set = {role for role in after.roles if role in self.roles}
+        if not before_roles_set.isdisjoint(after_roles_set):
+            return
+        else:
+            for role in before_roles_set:
+                await after.add_roles(role)
 
 
 def setup(bot: Bot):

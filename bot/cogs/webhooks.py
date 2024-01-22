@@ -2,7 +2,7 @@ from typing import Dict
 
 from discord.ext.commands import Context, Cog, Bot, Greedy
 from discord.ext import commands as cmd
-from discord import TextChannel, Embed, Color, ApplicationContext, Webhook
+from discord import TextChannel, Embed, Color, ApplicationContext, Webhook, Member
 
 from utils.checks import is_maintainer, is_techpriest
 
@@ -16,7 +16,7 @@ def filled_embed(ctx: Context) -> Embed:
 class Webhooks(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot: Bot = bot
-        self.webhooks: Dict[str, Webhook] = {}
+        self.webhooks: Dict[int, Webhook] = {}
 
     @cmd.group(name="webhooks")
     @is_maintainer()
@@ -29,7 +29,7 @@ class Webhooks(Cog):
     async def add(self, ctx: Context, channels: Greedy[TextChannel]):
         embed = Embed(description=ctx.author.name, color=Color.dark_blue())
 
-        tmp: Dict[str, Webhook] = {}
+        tmp: Dict[int, Webhook] = {}
         actions = []
         for channel in channels:
             try:
@@ -64,7 +64,7 @@ class Webhooks(Cog):
         embed.add_field(name="Action log:", value="\n".join(actions))
         await ctx.send(embed=embed)
 
-    @webhooks.command(name="ls")
+    @webhooks.command(name="ls", aliases=["list"])
     @is_maintainer()
     async def ls(self, ctx: Context):
         embed = Embed(description=ctx.author.name, color=Color.dark_blue()).add_field(
@@ -96,6 +96,14 @@ class Webhooks(Cog):
             ),
         )
         await ctx.send(embed=embed)
+
+    def is_channel_watched(self, channel: TextChannel):
+        return channel.id in self.webhooks
+
+    async def webhook_send(self, channel: TextChannel, content: str, user: Member):
+        await self.webhooks[channel.id].send(
+            content=content, username=user.display_name, avatar_url=user.display_avatar
+        )
 
 
 def setup(bot: Bot):
