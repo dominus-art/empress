@@ -41,7 +41,7 @@ class Uwu(Cog):
     def uwu_msg(self, message: str) -> str:
         flags = uwuify.NOUWU
         for flag in random.choices(
-            [uwuify.SMILEY, uwuify.STUTTER, uwuify.YU], k=random.randint(1, 3)
+            [uwuify.SMILEY, uwuify.STUTTER, uwuify.YU], k=random.randint(2, 3)
         ):
             flags = flags | flag
         return uwuify.uwu(message, flags=flags)
