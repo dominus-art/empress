@@ -61,5 +61,6 @@ class Ballgag(Cog):
     async def on_message(self, message: Message):
         await self.logic.gaggify(message, self.muffle)
 
+
 def setup(bot: Bot):
     bot.add_cog(Ballgag(bot))

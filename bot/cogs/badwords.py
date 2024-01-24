@@ -27,7 +27,6 @@ class Badwords(Cog):
         ]
 
     @cmd.group(name="badword")
-    @can_have_fun()
     async def badword(self, ctx: Context):
         if ctx.invoked_subcommand is None:
             return
@@ -40,7 +39,7 @@ class Badwords(Cog):
         embed = badword_embed(ctx)
         target_roles = set([role.id for role in user.roles])
         if user.id == ctx.author.id:
-            embed.description = "Don't play with yourself... weirdo"
+            embed.description = "Don't play with yourself..."
             await ctx.reply(embed=embed)
             return
         if (
@@ -71,12 +70,14 @@ class Badwords(Cog):
         embed.add_field(
             name="Forbidden Words:",
             value=", ".join(set([*words_to_add, *json.loads(db_user.bad_words)])),
+            inline=False
         )
         embed.add_field(
             name="Lives:",
             value=lives
             if not had_previous_lives
             else f"Lives not updated. User already had lives set.\nCurrent lives: {db_user.lives}",
+            inline=False
         )
         await ctx.send(embed=embed)
 
@@ -99,12 +100,13 @@ class Badwords(Cog):
             return
 
         embed.add_field(
-            name="Current forbidden words:", value=", ".join(db_user.bad_words)
+            name="Current forbidden words:", value=", ".join(db_user.bad_words), inline=False
         )
         embed.add_field(name="Raport:", value=", ".join(action_result))
         await ctx.send(embed=embed)
 
     @badword.command(name="clear", help=CLEAR)
+    @can_have_fun()
     async def clear(self, ctx: Context, user: Member):
         embed = badword_embed(ctx)
         if self.badword_role not in user.roles:
@@ -129,41 +131,44 @@ class Badwords(Cog):
         db_user = await crud.user.get_user(user.id)
         embed.description = f"{user.mention}"
         embed.add_field(
-            name="Forbidden Words:", value=", ".join(json.loads(db_user.bad_words))
+            name="Forbidden Words:", value=", ".join(json.loads(db_user.bad_words)), inline=False
         )
         await ctx.send(embed=embed)
 
     async def _check_message_for_badwords(self, message: Message):
-        if message.author.bot:
+        if message.author.bot or self.badword_role not in message.author.roles:
             return
-        if self.badword_role not in message.author.roles:
-            return
+
         user = await crud.user.get_user(message.author.id)
         user_badwords = set(json.loads(user.bad_words))
         lives = user.lives
+        tmp_embed_description: str
+        tmp_embed_footer = ""
+
         if user_badwords.isdisjoint(
-            set([word.strip(".,?;:'\"-_=+") for word in message.content.split()])
+            {word.strip(".,?;:'\"-_=+") for word in message.content.split()}
         ):
             return
+
         lives -= 1
         if lives <= 0:
             gag_role = random.choice(self.gag_roles)
-            embed = Embed(
-                description=f"{message.author.mention} run out of lives and is now gagged.",
-                timestamp=datetime.now(),
-            ).set_footer(text=f"Gag Type: {gag_role.name}")
             await crud.badwords.clear_badwords(message.author.id)
             await message.author.add_roles(gag_role)
             await message.author.remove_roles(self.badword_role)
-            await message.channel.send(embed=embed)
-            await crud.gag.lock_roles(message.author.id)
-            return
-        user = await crud.badwords.set_lives(message.author.id, lives)
-        embed = Embed(
-            description=f"{message.author.mention} said a frobidden word!\nTheir live count: {user.lives}",
-            timestamp=datetime.now(),
+            # await crud.gag.lock_roles(message.author.id)
+            tmp_embed_description = f"{message.author.mention} run out of lives and is now gagged.",
+            tmp_embed_footer = f"Gag Type: {gag_role.name}"
+        else:
+            user = await crud.badwords.set_lives(message.author.id, lives)
+            tmp_embed_description = f"{message.author.mention} said a frobidden word!\Lives left: {user.lives}"
+
+        await message.channel.send(
+            embed=Embed(
+                description=tmp_embed_description,
+                timestamp=datetime.now(),
+            ).set_footer(text=tmp_embed_footer)
         )
-        await message.channel.send(embed=embed)
 
     @Cog.listener()
     async def on_message(self, message: Message):

@@ -50,5 +50,6 @@ class Uwu(Cog):
     async def on_message(self, message: Message):
         await self.logic.gaggify(message, self.uwu_msg)
 
+
 def setup(bot: Bot):
     bot.add_cog(Uwu(bot))
