@@ -70,14 +70,14 @@ class Badwords(Cog):
         embed.add_field(
             name="Forbidden Words:",
             value=", ".join(set([*words_to_add, *json.loads(db_user.bad_words)])),
-            inline=False
+            inline=False,
         )
         embed.add_field(
             name="Lives:",
             value=lives
             if not had_previous_lives
             else f"Lives not updated. User already had lives set.\nCurrent lives: {db_user.lives}",
-            inline=False
+            inline=False,
         )
         await ctx.send(embed=embed)
 
@@ -100,7 +100,9 @@ class Badwords(Cog):
             return
 
         embed.add_field(
-            name="Current forbidden words:", value=", ".join(db_user.bad_words), inline=False
+            name="Current forbidden words:",
+            value=", ".join(db_user.bad_words),
+            inline=False,
         )
         embed.add_field(name="Raport:", value=", ".join(action_result))
         await ctx.send(embed=embed)
@@ -131,7 +133,9 @@ class Badwords(Cog):
         db_user = await crud.user.get_user(user.id)
         embed.description = f"{user.mention}"
         embed.add_field(
-            name="Forbidden Words:", value=", ".join(json.loads(db_user.bad_words)), inline=False
+            name="Forbidden Words:",
+            value=", ".join(json.loads(db_user.bad_words)),
+            inline=False,
         )
         await ctx.send(embed=embed)
 
@@ -157,7 +161,9 @@ class Badwords(Cog):
             await message.author.add_roles(gag_role)
             await message.author.remove_roles(self.badword_role)
             # await crud.gag.lock_roles(message.author.id)
-            tmp_embed_description = f"{message.author.mention} run out of lives and is now gagged.",
+            tmp_embed_description = (
+                f"{message.author.mention} run out of lives and is now gagged.",
+            )
             tmp_embed_footer = f"Gag Type: {gag_role.name}"
         else:
             user = await crud.badwords.set_lives(message.author.id, lives)

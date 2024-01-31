@@ -25,6 +25,15 @@ class GagsLogic:
         self._is_gagged_precheck(user)
         await user.add_roles(self.gag_role)
 
+    async def async_gaggify(self, message: Message, gag_method):
+        if not self._is_gagged(message):
+            return
+
+        await message.delete()
+        await self._send_with_webhook(
+            message.channel, message.author, await gag_method(message.content)
+        )
+
     async def gaggify(self, message: Message, gag_method: Callable[[str], str]):
         if not self._is_gagged(message):
             return
