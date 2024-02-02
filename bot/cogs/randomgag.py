@@ -1,5 +1,5 @@
 import aiohttp
-import json
+import random
 
 from discord import Cog, Bot, Member, Message, Embed
 from discord.ext import commands as cmd
@@ -38,15 +38,26 @@ class Randomgag(Cog):
         await self.logic.remove_gag(user)
         await ctx.send(embed=Embed(description=f"{user.mention} unballgagged."))
 
-    async def muffle(self, msg):
+    async def muffle(self, msg: str) -> str:
         url = "https://random-word-api.vercel.app/api?words="
-        words_num = len(msg.split())
+        words: list[str] = msg.split()
+        words_num = len(words)
+        rands: list[str]
+        ret: list[str] = []
         req = f"{url}{words_num}"
         async with self.session.get(req) as r:
             if not r.ok:
                 return r.reason
             else:
-                return " ".join(await r.json())
+                rands = await r.json()
+        
+        word: str
+        for i, word in enumerate(words):
+            if random.randint(1, 5) > 3:
+                word = rands[i]
+            ret.append(word)
+
+        return " ".join(ret)
 
     @Cog.listener()
     async def on_message(self, message: Message):
